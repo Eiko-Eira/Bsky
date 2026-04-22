@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Bot, Plus, Settings, Power, LogOut, Pause, Activity, X, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { db } from '../lib/firebase';
+import { db, auth } from '../lib/firebase';
 import { doc, collection, query, where, onSnapshot, deleteDoc, updateDoc } from 'firebase/firestore';
 
 export function Dashboard() {
@@ -165,10 +165,22 @@ export function Dashboard() {
       </div>
 
       {user && !user.emailVerified && (
-        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4 text-sm flex gap-3 shadow-sm">
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4 text-sm flex gap-3 shadow-[4px_4px_0px_0px_rgba(234,179,8,0.4)]">
           <Activity className="shrink-0 mt-0.5" size={18} />
-          <div>
-            <strong>Verification Required:</strong> We sent a verification link to {user.email}. You must verify your email for database permissions to grant you access to deploy a bot. Reload the site after clicking the link.
+          <div className="flex-1 flex items-center justify-between">
+            <div>
+              <strong className="block mb-1">Verification Required</strong>
+              We sent a verification link to {user.email}. You must verify your email before deploying bots.
+            </div>
+            <button 
+              onClick={async () => {
+                await auth.currentUser?.reload();
+                window.location.reload(); 
+              }}
+              className="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-bold border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-y-px hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all"
+            >
+              I Clicked It
+            </button>
           </div>
         </div>
       )}
@@ -176,13 +188,20 @@ export function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Create New Card */}
         <button 
-          onClick={() => navigate('/builder')}
-          className="group h-48 border-2 border-dashed border-black bg-white hover:bg-gray-50 flex flex-col items-center justify-center gap-4 transition-all hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1"
+          onClick={(e) => {
+            if (user && !user.emailVerified) {
+              e.preventDefault();
+              alert("Please verify your email address first.");
+            } else {
+              navigate('/builder');
+            }
+          }}
+          className={`group h-48 border-2 border-dashed border-black ${user && !user.emailVerified ? 'bg-gray-100 cursor-not-allowed opacity-70' : 'bg-white hover:bg-gray-50 flex flex-col items-center justify-center gap-4 transition-all hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1'} flex flex-col items-center justify-center gap-4`}
         >
-          <div className="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center group-hover:scale-110 transition-transform">
+          <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-transform ${user && !user.emailVerified ? 'bg-gray-400 text-gray-200' : 'bg-black text-white group-hover:scale-110'}`}>
             <Plus size={24} />
           </div>
-          <span className="font-bold uppercase tracking-widest">Create New Bot</span>
+          <span className="font-bold uppercase tracking-widest">{user && !user.emailVerified ? 'Verify Email to Build' : 'Create New Bot'}</span>
         </button>
 
         {/* Existing Bot Card */}

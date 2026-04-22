@@ -42,6 +42,12 @@ export function BotBuilder() {
 
     try {
       if (!auth.currentUser) throw new Error("Authentication required to deploy bots.");
+      
+      // Check absolute latest email verification status
+      await auth.currentUser.reload();
+      if (!auth.currentUser.emailVerified) {
+        throw new Error("You must verify your email address to deploy a bot. Please check your inbox or reload the page if you have already clicked the link.");
+      }
 
       // Military-grade AES-256 encryption before transmittal to database
       const ENCRYPTION_KEY = (import.meta as any).env.VITE_ENCRYPTION_KEY || 'development_key_replace_in_aws_prod';
