@@ -1,9 +1,10 @@
 {
-  apiKey: "AIzaSyAfqYF5FtnH5zbwEdvFWNq4-luwKF-pCzM",
-  authDomain: "bskytools-db71b.firebaseapp.com",
-  projectId: "bskytools-db71b",
-  storageBucket: "bskytools-db71b.firebasestorage.app",
-  messagingSenderId: "607090260904",
-  appId: "1:607090260904:web:136141bb7cce48a0b63b9d",
-  measurementId: "G-M6Z5MCQLYB"
+  "projectId": "bskytools-db71b",
+  "appId": "1:607090260904:web:136141bb7cce48a0b63b9d",
+  "apiKey": "AIzaSyAfqYF5FtnH5zbwEdvFWNq4-luwKF-pCzM",
+  "authDomain": "bskytools-db71b.firebaseapp.com",
+  "firestoreDatabaseId": "(default)",
+  "storageBucket": "bskytools-db71b.firebasestorage.app",
+  "messagingSenderId": "607090260904",
+  "measurementId": "G-M6Z5MCQLYB"
 }
