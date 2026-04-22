@@ -1,0 +1,5 @@
+{
+  "name": "BSkyTools",
+  "description": "An automation toolkit for the Bluesky social network allowing isolated, secure bot deployment.",
+  "requestFramePermissions": []
+}

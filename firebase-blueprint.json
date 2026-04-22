@@ -1,0 +1,26 @@
+{
+  "entities": {
+    "Bot": {
+      "title": "Bot Instance",
+      "description": "Configuration for a 24/7 Bluesky agent",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Owner Google Auth UID" },
+        "handle": { "type": "string" },
+        "keywords": { "type": "array" },
+        "repost": { "type": "boolean" },
+        "like": { "type": "boolean" },
+        "appPassword": { "type": "string", "description": "AES-Encrypted App Password" },
+        "status": { "type": "string", "enum": ["active", "paused", "error"] },
+        "createdAt": { "type": "number", "description": "Epoch timestamp" }
+      },
+      "required": ["userId", "handle", "keywords", "repost", "like", "appPassword", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "bots/{botId}": {
+      "schema": { "$ref": "#/entities/Bot" },
+      "description": "User deployed bot configurations"
+    }
+  }
+}

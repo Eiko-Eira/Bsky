@@ -1,0 +1,51 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global Primitives
+    function isSignedIn() { return request.auth != null; }
+    function isVerified() { return isSignedIn() && request.auth.token.email_verified == true; }
+    function isValidId(id) { return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    // Validation Blueprint for Bots
+    function isValidBot(data) {
+      return data.keys().hasAll(['userId', 'handle', 'keywords', 'repost', 'like', 'appPassword', 'status', 'createdAt']) &&
+             data.keys().size() == 8 &&
+             data.userId == request.auth.uid &&
+             data.handle is string && data.handle.size() > 0 && data.handle.size() <= 80 &&
+             data.keywords is list && data.keywords.size() > 0 && data.keywords.size() <= 20 &&
+             data.repost is bool &&
+             data.like is bool &&
+             data.appPassword is string && data.appPassword.size() > 0 && data.appPassword.size() <= 300 &&
+             data.status is string && data.status in ['active', 'paused', 'error'] &&
+             data.createdAt is number;
+    }
+
+    // Global Catch-all (Default Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Bot Configuration Collection
+    match /bots/{botId} {
+      // Users can only list/read their own bots
+      allow read: if isSignedIn() && existing().userId == request.auth.uid;
+      
+      // Strict creation constraints
+      allow create: if isVerified() && 
+                    isValidId(botId) && 
+                    isValidBot(incoming());
+                    
+      // Strict update constraints (can only toggle statuses or edit keywords)
+      allow update: if isVerified() && 
+                    existing().userId == request.auth.uid && 
+                    isValidBot(incoming()) && 
+                    incoming().diff(existing()).affectedKeys().hasOnly(['status', 'keywords', 'repost', 'like', 'appPassword']);
+                    
+      // Users can terminate their bots
+      allow delete: if isVerified() && existing().userId == request.auth.uid;
+    }
+  }
+}
