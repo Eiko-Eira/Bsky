@@ -1,5 +1,4 @@
 import express from "express";
-import { createServer as createViteServer } from "vite";
 import path from "path";
 import { botManager } from "./botManager";
 
@@ -84,8 +83,9 @@ async function startServer() {
     res.status(500).json({ error: "Internal server error." });
   });
 
-  // Vite middleware for development
+  // Vite middleware for development (Removed from production bundler)
   if (process.env.NODE_ENV !== "production") {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
